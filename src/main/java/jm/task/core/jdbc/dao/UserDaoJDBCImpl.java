@@ -9,14 +9,15 @@ import java.util.List;
 
 public class UserDaoJDBCImpl extends Util implements UserDao {
     private final Connection connection;
-    Statement statement = null;
+
 
     public UserDaoJDBCImpl(final Connection connection) {
         this.connection = connection;
     }
 
 
-    public void createUsersTable() {
+    public void createUsersTable() throws SQLException {
+        Statement statement = null;
         String sql = "CREATE TABLE IF NOT EXISTS users " +
                 "(Id INT AUTO_INCREMENT PRIMARY KEY, " +
                 " name VARCHAR(50), " +
@@ -25,18 +26,23 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
         try {
             statement = connection.createStatement();
             statement.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
-    public void dropUsersTable() {
+    public void dropUsersTable() throws SQLException {
+        Statement statement = null;
         String sql = "DROP TABLE IF EXISTS users";
         try {
             statement = connection.createStatement();
             statement.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 
@@ -52,30 +58,22 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
             preparedStatement.setByte(3, user.getAge());
             preparedStatement.executeUpdate();
             System.out.println("User " + user.getName() + " was added to the table Users");
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             preparedStatement.close();
         }
-        // finally {
-        //     if (preparedStatement != null) {
-        //         preparedStatement.close();
-        //     }
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
-        // }
     }
 
-    public void removeUserById(long id) {
+    public void removeUserById(long id) throws SQLException {
         PreparedStatement preparedStatement = null;
         String sql = "DELETE FROM users WHERE ID = " + id;
         try {
             preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
             System.out.println("User with id # " + id + " was deleted from the table Users");
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
         }
     }
 
@@ -96,20 +94,24 @@ public class UserDaoJDBCImpl extends Util implements UserDao {
                 userList.add(user);
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
         return userList;
     }
 
-    public void cleanUsersTable() {
+    public void cleanUsersTable() throws SQLException {
         Statement statement = null;
         String sql = "TRUNCATE TABLE users";
         try {
             statement = connection.createStatement();
             statement.executeUpdate(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
         }
     }
 }
